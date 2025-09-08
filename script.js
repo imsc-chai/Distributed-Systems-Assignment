@@ -1,17 +1,15 @@
-// --- Closure to track successful submissions ---
+
 const makeSubmissionCounter = () => {
   let count = 0;
-  return () => ++count; // returns the next count each success
+  return () => ++count; 
 };
 const nextSubmissionCount = makeSubmissionCounter();
 
 const form = document.getElementById("blogForm");
 
-// ---  Arrow function: validate + handle submit ---
 const validateAndSubmit = (e) => {
   e.preventDefault();
 
-  // Grab elements & values
   const titleEl = document.getElementById("title");
   const authorEl = document.getElementById("author");
   const emailEl = document.getElementById("email");
@@ -26,7 +24,6 @@ const validateAndSubmit = (e) => {
   const category = categoryEl.value;
   const termsChecked = termsEl.checked;
 
-  // --- Collect validation errors (shows both alerts if both fail) ---
   const errors = [];
   if (content.length <= 25) {
     errors.push("Blog content should be more than 25 characters");
@@ -36,26 +33,21 @@ const validateAndSubmit = (e) => {
   }
   if (errors.length) {
     errors.forEach(msg => alert(msg)); 
-    return; // stop submit flow
+    return; 
   }
 
-  // --- Convert to JSON string and log ---
   const dataObj = { title, author, email, content, category, termsChecked };
   const jsonString = JSON.stringify(dataObj);
   console.log("JSON string:", jsonString);
 
-  // --- Parse back ---
   const parsed = JSON.parse(jsonString);
 
-  // --- Destructure title & email and log ---
   const { title: parsedTitle, email: parsedEmail } = parsed;
   console.log("Destructured → title:", parsedTitle, "email:", parsedEmail);
 
-  // ---  Spread operator to add submissionDate and log ---
   const enhanced = { ...parsed, submissionDate: new Date().toISOString() };
   console.log("Enhanced object with submissionDate:", enhanced);
 
-  // ---  Closure count ---
   const count = nextSubmissionCount();
   console.log("Successful submissions so far:", count);
 
@@ -65,3 +57,4 @@ const validateAndSubmit = (e) => {
 };
 
 form.addEventListener("submit", (e) => validateAndSubmit(e));
+
