@@ -2,7 +2,6 @@
 Agentic AI (Part 2)
 
 """
-
 import argparse
 import json
 import re
@@ -16,7 +15,6 @@ from langchain_core.messages import SystemMessage, HumanMessage
 
 def word_count(s: str) -> int:
     return len(re.findall(r"\b\w[\w'-]*\b", s or ""))
-
 
 class DataBlock(BaseModel):
     tags: List[str] = Field(..., description="Exactly 3 concise, lowercase topical tags (no meta).")
@@ -32,7 +30,6 @@ class DataBlock(BaseModel):
             t = (t or "").strip().lower()
             if not t or t in meta_ban:
                 continue
-            # strip common filler words inside tags
             t = re.sub(r"\b(here|the|an|a|and|of|about|topic|content|article|post)\b", "", t).strip()
             if t and t not in seen:
                 clean.append(t)
@@ -44,12 +41,10 @@ class DataBlock(BaseModel):
     @field_validator("summary")
     @classmethod
     def _limit_25(cls, v: str) -> str:
-        # remove common filler prefixes
         v = re.sub(r"^\s*here\s+is\s+the\s+paraphrased.*?:\s*", "", v, flags=re.I)
         v = re.sub(r"^\s*(this|the)\s+(article|post|content)\s+.*?:\s*", "", v, flags=re.I)
         words = re.findall(r"\b\w[\w'-]*\b", (v or "").strip())
         return " ".join(words[:25])
-
 
 class AgentJSON(BaseModel):
     thought: str
@@ -71,7 +66,6 @@ def build_llm(model: str, base_url: str, temperature: float = 0.2, json_mode: bo
     if json_mode:
         kwargs["format"] = "json"
     return ChatOllama(**kwargs)
-
 
 def sanitize_json_text(text: str) -> str:
     """
@@ -104,7 +98,6 @@ def call_agent(llm: ChatOllama, system_prompt: str, human_prompt: str, max_repai
             return AgentJSON(**json.loads(candidate))
         except Exception:
             if k == max_repairs:
-                # Fallback minimal compliant object (no domain-specific tags)
                 return AgentJSON(
                     thought="Fallback",
                     message="Draft analyzed and improved; provided concise tags and a ≤25-word summary.",
@@ -148,7 +141,7 @@ def demeta_tags(tags: List[str], title: str, content: str) -> List[str]:
         stop = {
             "the", "and", "with", "from", "that", "this", "into", "over", "under",
             "long", "term", "about", "your", "their", "very", "much", "more",
-            "health", "wellness"  # keep these common ones optional; tags may already include them
+            "health", "wellness" 
         }
         freq = collections.Counter(w for w in words if w not in stop)
         for w, _ in freq.most_common():
@@ -192,7 +185,6 @@ def main():
 
     llm = build_llm(args.model, args.base_url, json_mode=True)
 
-    # Planner
     planner_h = (
         f"TITLE: {args.title}\n"
         f"CONTENT: {args.content}\n"
@@ -201,12 +193,10 @@ def main():
     planner_obj = call_agent(llm, PLANNER_SYS, planner_h)
     print_block("Planner", planner_obj.model_dump())
 
-    # Reviewer
     reviewer_h = json.dumps(planner_obj.model_dump(), ensure_ascii=False)
     reviewer_obj = call_agent(llm, REVIEWER_SYS, reviewer_h)
     print_block("Reviewer", reviewer_obj.model_dump())
 
-    # Finalizer
     final_h = (
         "<<PLANNER JSON>>\n\n<<REVIEWER JSON>>"
         .replace("<<PLANNER JSON>>", json.dumps(planner_obj.model_dump(), ensure_ascii=False))
@@ -214,11 +204,9 @@ def main():
     )
     final_obj = call_agent(llm, FINALIZER_SYS, final_h)
 
-    # Last-mile tag cleanup (remove meta & top-up from title/content if needed)
     final_obj.data.tags = demeta_tags(final_obj.data.tags, args.title, args.content)
     print_block("Finalized Output", final_obj.model_dump())
 
-    # Publish Package (single JSON object)
     publish = {
         "title": args.title,
         "email": args.email,
@@ -235,3 +223,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
