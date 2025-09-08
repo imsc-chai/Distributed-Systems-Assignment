@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Home Work 1 - Sai Chaitanya Munagala</title>
+</head>
+
+<body>
+  <h1>My First Blog</h1>
+
+  <form id="blogForm">
+    <label for="title" style="display:block;margin-top:8px;">Blog Title</label>
+    <input type="text" id="title" name="title"
+           placeholder="Enter the title of your blog"
+           required autofocus />
+
+    <label for="author" style="display:block;margin-top:12px;">Author Name</label>
+    <input type="text" id="author" name="author"
+           placeholder="Enter your name" required />
+
+    <label for="email" style="display:block;margin-top:12px;">Email</label>
+    <input type="email" id="email" name="email"
+           placeholder="Enter your email" required />
+
+    <label for="content" style="display:block;margin-top:12px;">Content</label>
+    <textarea id="content" name="content" rows="6"
+              placeholder="Write your content here..." required></textarea>
+
+    <label for="category" style="display:block;margin-top:12px;">Category</label>
+    <select id="category" name="category">
+      <option value="Technology">Technology</option>
+      <option value="Lifestyle">Lifestyle</option>
+      <option value="Travel">Travel</option>
+      <option value="Education">Education</option>
+    </select>
+
+    <div style="margin-top:12px;">
+      <input type="checkbox" id="terms" name="terms" />
+      <label for="terms">I agree to the terms and conditions.</label>
+    </div>
+
+    <button type="submit" style="margin-top:14px;">Publish Blog</button>
+  </form>
+
+  <!-- Part II script link -->
+  <script src="script.js"></script>
+</body>
+
+</html>
